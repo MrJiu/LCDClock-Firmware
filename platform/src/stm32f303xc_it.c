@@ -10,12 +10,12 @@
 #include <stddef.h>
 #include <string.h>
 
-void __stack_end(void);
+void __stack(void);
 void Reset_Handler(void);
 
 void __attribute__((section(".vector"))) (*isr_vector[])(void) =
 {
-		__stack_end,
+		__stack,
 #define HANDLER(name, num) name##_Handler,
 #define SKIP_HANDLER NULL,
 HANDLER(Reset, 1)
@@ -42,9 +42,11 @@ extern void *const __vector_load, *const __vector_addr; extern const size_t __ve
 extern void *const __ccm_load,    *const __ccm_addr;    extern const size_t __ccm_size;
 extern void *const __data_load,   *const __data_addr;   extern const size_t __data_size;
 extern void                       *const __bss_addr;    extern const size_t __bss_size;
+extern void _start(void);
 
 void __attribute__((noreturn)) Reset_Handler(void)
 {
+	SCB->CPACR = 0x00f00000;
 	SystemInit();
 
 	memcpy(__vector_addr, __vector_load, __vector_size);

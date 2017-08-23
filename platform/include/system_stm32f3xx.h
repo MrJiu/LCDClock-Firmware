@@ -92,6 +92,8 @@ extern uint32_t SystemCoreClock;          /*!< System Clock Frequency (Core Cloc
   * @{
   */
 
+#define SET_FIELD(reg, field, value) (reg) = ((reg) & (~(field))) | ((value) & (field))
+
 /**
   * @}
   */

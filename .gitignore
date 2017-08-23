@@ -31,7 +31,12 @@
 *.out
 *.app
 *.elf
+*.map
+*.hex
 
+Debug/
+Release/
+!cmsis/lib/*.a
 
 .metadata
 bin/

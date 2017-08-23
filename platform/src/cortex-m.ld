@@ -136,7 +136,7 @@ SECTIONS
     } > CCM AT > IROM = 0xff
     
     /* Stack */
-    __stack_end = ORIGIN(CCM) + LENGTH(CCM);
+    PROVIDE(__stack = ORIGIN(CCM) + LENGTH(CCM));
     
     .data :
     {
