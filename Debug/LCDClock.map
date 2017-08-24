@@ -204,7 +204,7 @@ LOAD /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtn
                 0x0000000000000001                ASSERT ((. != __vector_start), The interrupt vector is missing.)
                 0x0000000010000188                . = ALIGN (0x4)
 
-.text           0x0000000008000188      0x32a
+.text           0x0000000008000188      0x372
  *(.text*)
  .text          0x0000000008000188       0x6c /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
  .text          0x00000000080001f4       0x74 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard/crt0.o
@@ -296,129 +296,129 @@ LOAD /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtn
                 0x000000000800032c                MemoryManagement_Handler
                 0x000000000800032c                RTC_WKUP_Handler
  .text.SystemInit
-                0x0000000008000358       0x30 ./platform/src/system_stm32f303cx.o
+                0x0000000008000358       0x78 ./platform/src/system_stm32f303cx.o
                 0x0000000008000358                SystemInit
  .text.SystemCoreClockUpdate
-                0x0000000008000388       0x94 ./platform/src/system_stm32f303cx.o
-                0x0000000008000388                SystemCoreClockUpdate
- .text.exit     0x000000000800041c       0x28 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard/libg_nano.a(lib_a-exit.o)
-                0x000000000800041c                exit
+                0x00000000080003d0       0x94 ./platform/src/system_stm32f303cx.o
+                0x00000000080003d0                SystemCoreClockUpdate
+ .text.exit     0x0000000008000464       0x28 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard/libg_nano.a(lib_a-exit.o)
+                0x0000000008000464                exit
  .text.__libc_init_array
-                0x0000000008000444       0x48 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard/libg_nano.a(lib_a-init.o)
-                0x0000000008000444                __libc_init_array
- .text.memcpy   0x000000000800048c       0x16 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard/libg_nano.a(lib_a-memcpy-stub.o)
-                0x000000000800048c                memcpy
- .text.memset   0x00000000080004a2       0x10 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard/libg_nano.a(lib_a-memset.o)
-                0x00000000080004a2                memset
+                0x000000000800048c       0x48 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard/libg_nano.a(lib_a-init.o)
+                0x000000000800048c                __libc_init_array
+ .text.memcpy   0x00000000080004d4       0x16 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard/libg_nano.a(lib_a-memcpy-stub.o)
+                0x00000000080004d4                memcpy
+ .text.memset   0x00000000080004ea       0x10 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard/libg_nano.a(lib_a-memset.o)
+                0x00000000080004ea                memset
 
-.glue_7         0x00000000080004b4        0x0
- .glue_7        0x00000000080004b4        0x0 linker stubs
+.glue_7         0x00000000080004fc        0x0
+ .glue_7        0x00000000080004fc        0x0 linker stubs
 
-.glue_7t        0x00000000080004b4        0x0
- .glue_7t       0x00000000080004b4        0x0 linker stubs
+.glue_7t        0x00000000080004fc        0x0
+ .glue_7t       0x00000000080004fc        0x0 linker stubs
 
-.vfp11_veneer   0x00000000080004b4        0x0
- .vfp11_veneer  0x00000000080004b4        0x0 linker stubs
+.vfp11_veneer   0x00000000080004fc        0x0
+ .vfp11_veneer  0x00000000080004fc        0x0 linker stubs
 
-.v4_bx          0x00000000080004b4        0x0
- .v4_bx         0x00000000080004b4        0x0 linker stubs
+.v4_bx          0x00000000080004fc        0x0
+ .v4_bx         0x00000000080004fc        0x0 linker stubs
 
-.iplt           0x00000000080004b4        0x0
- .iplt          0x00000000080004b4        0x0 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
+.iplt           0x00000000080004fc        0x0
+ .iplt          0x00000000080004fc        0x0 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
 
-.rodata         0x00000000080004b4       0x70
+.rodata         0x00000000080004fc       0x70
  *(.rodata*)
- .rodata.HCLK_DIV.6725
-                0x00000000080004b4       0x40 ./platform/src/system_stm32f303cx.o
+ .rodata.HCLK_DIV.6731
+                0x00000000080004fc       0x40 ./platform/src/system_stm32f303cx.o
  .rodata._global_impure_ptr
-                0x00000000080004f4        0x4 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard/libg_nano.a(lib_a-impure.o)
-                0x00000000080004f4                _global_impure_ptr
-                0x00000000080004f8                PROVIDE (__vector_load, .)
-                0x00000000080004f8        0x4 LONG 0x8000000 LOADADDR (.vector)
-                0x00000000080004fc                PROVIDE (__vector_addr, .)
-                0x00000000080004fc        0x4 LONG 0x10000000 ADDR (.vector)
-                0x0000000008000500                PROVIDE (__vector_size, .)
-                0x0000000008000500        0x4 LONG 0x188 SIZEOF (.vector)
-                0x0000000008000504                PROVIDE (__ccm_load, .)
-                0x0000000008000504        0x4 LONG 0x800054c LOADADDR (.ccm)
-                0x0000000008000508                PROVIDE (__ccm_addr, .)
-                0x0000000008000508        0x4 LONG 0x10000188 ADDR (.ccm)
-                0x000000000800050c                PROVIDE (__ccm_size, .)
-                0x000000000800050c        0x4 LONG 0x0 SIZEOF (.ccm)
-                0x0000000008000510                PROVIDE (__data_load, .)
-                0x0000000008000510        0x4 LONG 0x800054c LOADADDR (.data)
-                0x0000000008000514                PROVIDE (__data_addr, .)
-                0x0000000008000514        0x4 LONG 0x20000000 ADDR (.data)
-                0x0000000008000518                PROVIDE (__data_size, .)
-                0x0000000008000518        0x4 LONG 0x60 SIZEOF (.data)
-                0x000000000800051c                PROVIDE (__bss_addr, .)
-                0x000000000800051c        0x4 LONG 0x20000060 ADDR (.bss)
-                0x0000000008000520                PROVIDE (__bss_size, .)
-                0x0000000008000520        0x4 LONG 0x20 SIZEOF (.bss)
+                0x000000000800053c        0x4 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard/libg_nano.a(lib_a-impure.o)
+                0x000000000800053c                _global_impure_ptr
+                0x0000000008000540                PROVIDE (__vector_load, .)
+                0x0000000008000540        0x4 LONG 0x8000000 LOADADDR (.vector)
+                0x0000000008000544                PROVIDE (__vector_addr, .)
+                0x0000000008000544        0x4 LONG 0x10000000 ADDR (.vector)
+                0x0000000008000548                PROVIDE (__vector_size, .)
+                0x0000000008000548        0x4 LONG 0x188 SIZEOF (.vector)
+                0x000000000800054c                PROVIDE (__ccm_load, .)
+                0x000000000800054c        0x4 LONG 0x8000594 LOADADDR (.ccm)
+                0x0000000008000550                PROVIDE (__ccm_addr, .)
+                0x0000000008000550        0x4 LONG 0x10000188 ADDR (.ccm)
+                0x0000000008000554                PROVIDE (__ccm_size, .)
+                0x0000000008000554        0x4 LONG 0x0 SIZEOF (.ccm)
+                0x0000000008000558                PROVIDE (__data_load, .)
+                0x0000000008000558        0x4 LONG 0x8000594 LOADADDR (.data)
+                0x000000000800055c                PROVIDE (__data_addr, .)
+                0x000000000800055c        0x4 LONG 0x20000000 ADDR (.data)
+                0x0000000008000560                PROVIDE (__data_size, .)
+                0x0000000008000560        0x4 LONG 0x60 SIZEOF (.data)
+                0x0000000008000564                PROVIDE (__bss_addr, .)
+                0x0000000008000564        0x4 LONG 0x20000060 ADDR (.bss)
+                0x0000000008000568                PROVIDE (__bss_size, .)
+                0x0000000008000568        0x4 LONG 0x20 SIZEOF (.bss)
 
-.eh_frame       0x0000000008000524        0x0
- .eh_frame      0x0000000008000524        0x0 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
+.eh_frame       0x000000000800056c        0x0
+ .eh_frame      0x000000000800056c        0x0 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
 
-.init           0x0000000008000524        0xc
+.init           0x000000000800056c        0xc
  *(.init)
- .init          0x0000000008000524        0x4 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crti.o
-                0x0000000008000524                _init
- .init          0x0000000008000528        0x8 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtn.o
+ .init          0x000000000800056c        0x4 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crti.o
+                0x000000000800056c                _init
+ .init          0x0000000008000570        0x8 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtn.o
 
-.fini           0x0000000008000530        0xc
+.fini           0x0000000008000578        0xc
  *(.fini)
- .fini          0x0000000008000530        0x4 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crti.o
-                0x0000000008000530                _fini
- .fini          0x0000000008000534        0x8 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtn.o
+ .fini          0x0000000008000578        0x4 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crti.o
+                0x0000000008000578                _fini
+ .fini          0x000000000800057c        0x8 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtn.o
 
 .ARM.extab
  *(.ARM.extab*)
 
-.ARM.exidx      0x000000000800053c        0x8
+.ARM.exidx      0x0000000008000584        0x8
  *(.ARM.exidx*)
- .ARM.exidx     0x000000000800053c        0x8 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard/crt0.o
+ .ARM.exidx     0x0000000008000584        0x8 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard/crt0.o
 
-.rel.dyn        0x0000000008000544        0x0
- .rel.iplt      0x0000000008000544        0x0 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
+.rel.dyn        0x000000000800058c        0x0
+ .rel.iplt      0x000000000800058c        0x0 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
 
-.preinit_array  0x0000000008000544        0x0
-                0x0000000008000544                PROVIDE (__preinit_array_start, .)
+.preinit_array  0x000000000800058c        0x0
+                0x000000000800058c                PROVIDE (__preinit_array_start, .)
  *(.preinit_array*)
-                0x0000000008000544                PROVIDE (__preinit_array_end, .)
+                0x000000000800058c                PROVIDE (__preinit_array_end, .)
 
-.init_array     0x0000000008000544        0x4
-                0x0000000008000544                PROVIDE (__init_array_start, .)
+.init_array     0x000000000800058c        0x4
+                0x000000000800058c                PROVIDE (__init_array_start, .)
  *(SORT(.init_array.*))
  *(.init_array*)
- .init_array    0x0000000008000544        0x4 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
-                0x0000000008000548                PROVIDE (__init_array_end, .)
+ .init_array    0x000000000800058c        0x4 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
+                0x0000000008000590                PROVIDE (__init_array_end, .)
 
-.fini_array     0x0000000008000548        0x4
+.fini_array     0x0000000008000590        0x4
                 [!provide]                        PROVIDE (__fini_array_start, .)
  *(SORT(.fini_array.*))
  *(.fini_array*)
- .fini_array    0x0000000008000548        0x4 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
+ .fini_array    0x0000000008000590        0x4 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
                 [!provide]                        PROVIDE (__fini_array_end, .)
-                0x000000000800054c                . = ALIGN (0x4)
+                0x0000000008000594                . = ALIGN (0x4)
 
-.ccm            0x0000000010000188        0x0 load address 0x000000000800054c
+.ccm            0x0000000010000188        0x0 load address 0x0000000008000594
  *(.ccm*)
                 0x0000000010000188                . = ALIGN (0x4)
                 0x0000000010002000                PROVIDE (__stack, (ORIGIN (CCM) + LENGTH (CCM)))
 
-.data           0x0000000020000000       0x60 load address 0x000000000800054c
+.data           0x0000000020000000       0x60 load address 0x0000000008000594
  *(.data*)
  .data.impure_data
                 0x0000000020000000       0x60 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/../../../../arm-none-eabi/lib/thumb/v7e-m/fpv4-sp/hard/libg_nano.a(lib_a-impure.o)
                 0x0000000020000060                . = ALIGN (0x4)
 
-.jcr            0x0000000020000060        0x0 load address 0x00000000080005ac
+.jcr            0x0000000020000060        0x0 load address 0x00000000080005f4
  .jcr           0x0000000020000060        0x0 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
 
-.igot.plt       0x0000000020000060        0x0 load address 0x00000000080005ac
+.igot.plt       0x0000000020000060        0x0 load address 0x00000000080005f4
  .igot.plt      0x0000000020000060        0x0 /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
 
-.bss            0x0000000020000060       0x20 load address 0x00000000080005ac
+.bss            0x0000000020000060       0x20 load address 0x00000000080005f4
                 0x0000000020000060                PROVIDE (__bss_start__, .)
  *(.bss*)
  .bss           0x0000000020000060       0x1c /usr/local/bin/../lib/gcc/arm-none-eabi/6.3.1/thumb/v7e-m/fpv4-sp/hard/crtbegin.o
@@ -461,10 +461,10 @@ OUTPUT(LCDClock.elf elf32-littlearm)
  .comment       0x000000000000007f       0x80 ./platform/src/stm32f303xc_it.o
  .comment       0x000000000000007f       0x80 ./platform/src/system_stm32f303cx.o
 
-.debug_info     0x0000000000000000     0x11a8
+.debug_info     0x0000000000000000     0x1230
  .debug_info    0x0000000000000000       0xd4 ./src/main.o
  .debug_info    0x00000000000000d4      0xe95 ./platform/src/stm32f303xc_it.o
- .debug_info    0x0000000000000f69      0x23f ./platform/src/system_stm32f303cx.o
+ .debug_info    0x0000000000000f69      0x2c7 ./platform/src/system_stm32f303cx.o
 
 .debug_abbrev   0x0000000000000000      0x447
  .debug_abbrev  0x0000000000000000       0x7d ./src/main.o
@@ -521,18 +521,18 @@ OUTPUT(LCDClock.elf elf32-littlearm)
  .debug_macro   0x000000000000acbb       0xeb ./platform/src/system_stm32f303cx.o
  .debug_macro   0x000000000000ada6       0x16 ./platform/src/system_stm32f303cx.o
 
-.debug_line     0x0000000000000000      0x88b
+.debug_line     0x0000000000000000      0x89b
  .debug_line    0x0000000000000000      0x255 ./src/main.o
  .debug_line    0x0000000000000255      0x375 ./platform/src/stm32f303xc_it.o
- .debug_line    0x00000000000005ca      0x2c1 ./platform/src/system_stm32f303cx.o
+ .debug_line    0x00000000000005ca      0x2d1 ./platform/src/system_stm32f303cx.o
 
-.debug_str      0x0000000000000000    0x3d2a4
+.debug_str      0x0000000000000000    0x3d2c8
  .debug_str     0x0000000000000000    0x39d73 ./src/main.o
                                       0x39ee4 (size before relaxing)
  .debug_str     0x0000000000039d73     0x3471 ./platform/src/stm32f303xc_it.o
                                       0x3d4d0 (size before relaxing)
- .debug_str     0x000000000003d1e4       0xc0 ./platform/src/system_stm32f303cx.o
-                                      0x3a032 (size before relaxing)
+ .debug_str     0x000000000003d1e4       0xe4 ./platform/src/system_stm32f303cx.o
+                                      0x3a05b (size before relaxing)
 
 .debug_frame    0x0000000000000000      0x13c
  .debug_frame   0x0000000000000000       0x20 ./src/main.o
