@@ -43,6 +43,11 @@ SECTIONS
 		*(.text*)
 	} > IROM = 0xff
 	
+	.devices :
+	{
+		KEEP(*(.devices*))
+	} > IROM = 0xff
+	
 	.rodata :
 	{
 		*(.rodata*)
@@ -51,6 +56,8 @@ SECTIONS
 		PROVIDE(__vector_load = .); LONG(LOADADDR(.vector));
 		PROVIDE(__vector_addr = .); LONG(ADDR(.vector));
 		PROVIDE(__vector_size = .); LONG(SIZEOF(.vector));
+		PROVIDE(__devices_addr = .); LONG(ADDR(.devices));
+		PROVIDE(__devices_size = .); LONG(SIZEOF(.devices));
 		PROVIDE(__ccm_load = .); LONG(LOADADDR(.ccm));
 		PROVIDE(__ccm_addr = .); LONG(ADDR(.ccm));
 		PROVIDE(__ccm_size = .); LONG(SIZEOF(.ccm));
@@ -59,6 +66,8 @@ SECTIONS
 		PROVIDE(__data_size = .); LONG(SIZEOF(.data));
 		PROVIDE(__bss_addr = .); LONG(ADDR(.bss));
 		PROVIDE(__bss_size = .); LONG(SIZEOF(.bss));
+		PROVIDE(__bss_end = .); LONG(ADDR(.bss) + SIZEOF(.bss));
+		PROVIDE(__mem_end = .); LONG(ORIGIN(IRAM) + LENGTH(IRAM));
 	} > IROM = 0xff
 	
 	.init :

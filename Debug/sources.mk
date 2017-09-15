@@ -29,4 +29,5 @@ CPP_DEPS :=
 SUBDIRS := \
 platform/src \
 src \
+system/src \
 

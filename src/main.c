@@ -6,9 +6,12 @@
  */
 
 #include <stm32f3xx.h>
+#include <stdio.h>
 
 int main(void)
 {
+	fprintf(stderr, "Ready.\r\n");
+
 	for (;;)
 		__WFE();
 }

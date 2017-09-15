@@ -20,7 +20,7 @@ C_DEPS += \
 platform/src/%.o: ../platform/src/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: GNU ARM Cross C Compiler'
-	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -Og -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections  -g3 -DSTM32F303xC -DHSE_VALUE=8000000 -I"/Users/technix/Developer/Eclipse/default/LCDClock/include" -I"/Users/technix/Developer/Eclipse/default/LCDClock/platform/include" -I"/Users/technix/Developer/Eclipse/default/LCDClock/cmsis/include" -std=gnu11 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -c -o "$@" "$<"
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -Og -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -fsingle-precision-constant  -g3 -DSTM32F303xC -DHSE_VALUE=8000000 -I"/Users/technix/Developer/Eclipse/default/LCDClock/include" -I"/Users/technix/Developer/Eclipse/default/LCDClock/system/include" -I"/Users/technix/Developer/Eclipse/default/LCDClock/platform/include" -I"/Users/technix/Developer/Eclipse/default/LCDClock/cmsis/include" -std=gnu11 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@)" -c -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

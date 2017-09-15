@@ -42,11 +42,16 @@ extern void *const __vector_load, *const __vector_addr; extern const size_t __ve
 extern void *const __ccm_load,    *const __ccm_addr;    extern const size_t __ccm_size;
 extern void *const __data_load,   *const __data_addr;   extern const size_t __data_size;
 extern void                       *const __bss_addr;    extern const size_t __bss_size;
+
 extern void _start(void);
 
-void __attribute__((noreturn)) Reset_Handler(void)
+__attribute__((noreturn, naked)) void Reset_Handler(void)
 {
+	SCB->SHCSR |= SCB_SHCSR_USGFAULTENA_Msk | SCB_SHCSR_BUSFAULTENA_Msk | SCB_SHCSR_MEMFAULTENA_Msk;
 	SCB->CPACR = 0x00f00000;
+	__DSB();
+	__ISB();
+
 	SystemInit();
 
 	memcpy(__vector_addr, __vector_load, __vector_size);
@@ -54,6 +59,7 @@ void __attribute__((noreturn)) Reset_Handler(void)
 	memcpy(__data_addr, __data_load, __data_size);
 	memset(__bss_addr, 0, __bss_size);
 	__DSB();
+
 	SCB->VTOR = (uint32_t)isr_vector;
 	__DSB();
 
@@ -63,7 +69,7 @@ void __attribute__((noreturn)) Reset_Handler(void)
 	_exit(0);
 }
 
-void __attribute__((weak)) Default_Handler(void)
+__attribute__((weak)) void Default_Handler(void)
 {
 	IRQn_Type IRQn = (SCB->ICSR & SCB_ICSR_VECTACTIVE_Msk) - 16;
 
