@@ -10,6 +10,7 @@
 #include <string.h>
 #include <sys/stat.h>
 #include <stdarg.h>
+#include <dreamos-rt/ring-buffer.h>
 
 #include <errno.h>
 #undef errno
@@ -29,14 +30,8 @@ struct usart_s
 	// Dynamic data
 	int open_mode;
 
-	uint8_t *read_buffer;
-	size_t read_buffer_length;
-	off_t read_buffer_head;
-	off_t read_buffer_tail;
-
-	uint8_t *write_buffer;
-	uint8_t *write_buffer_head;
-	size_t write_buffer_length;
+	ring_buffer_t read_buffer;
+	ring_buffer_t write_buffer;
 };
 
 static void usart_interrupt(usart_t *usart)
@@ -46,7 +41,7 @@ static void usart_interrupt(usart_t *usart)
 
 static inline void usart_wait_for_write(usart_t *usart)
 {
-	while (usart->write_buffer);
+	while (ring_buffer_getlength(usart->write_buffer));
 	while (!(usart->USART->ISR & USART_ISR_TC));
 }
 
@@ -56,15 +51,20 @@ static int usart_open(device_t *device, int mode, ...)
 
 	if (!usart->read_buffer)
 	{
-		usart->read_buffer = calloc(USART_READ_BUFFER_SIZE, 1);
+		usart->read_buffer = ring_buffer_init(USART_READ_BUFFER_SIZE);
 		if (!usart->read_buffer)
+			return -1;
+	}
+
+	if (!usart->write_buffer)
+	{
+		usart->write_buffer = ring_buffer_init(USART_WRITE_BUFFER_SIZE);
+		if (!usart->write_buffer)
 		{
+			ring_buffer_dealloc(usart->read_buffer);
+			usart->read_buffer = NULL;
 			return -1;
 		}
-
-		usart->read_buffer_length = USART_READ_BUFFER_SIZE;
-		usart->read_buffer_head = 0;
-		usart->read_buffer_tail = 0;
 	}
 
 	(*usart->RCC_APBEN) |= usart->RCC_APBEN_Msk;
@@ -101,8 +101,10 @@ static int usart_close(device_t *device)
 
 	(*usart->RCC_APBEN) &= ~usart->RCC_APBEN_Msk;
 
-	free(usart->read_buffer);
+	ring_buffer_dealloc(usart->read_buffer);
+	ring_buffer_dealloc(usart->write_buffer);
 	usart->read_buffer = NULL;
+	usart->write_buffer = NULL;
 
 	return 0;
 }
@@ -112,15 +114,36 @@ static inline int usart_getchar_nonblock(usart_t *usart)
 
 }
 
+static inline int usart_putchar_nonblock(usart_t *usart, char ch)
+{
+
+}
+
 static int usart_read(device_t *device, void *buf, size_t len)
 {
 	usart_t *usart = (usart_t *)device;
-	return -1;
+	char *bp = buf;
+	int count = 0;
+
+	for (int idx = 0; idx < len; idx++)
+	{
+		int ch = usart_getchar_nonblock(usart);
+		if (ch < 0)
+		{
+			errno = -ch;
+			break;
+		}
+		bp[idx] = ch;
+	}
+
+	return count;
 }
 
 static int usart_write(device_t *device, const void *buf, size_t len)
 {
 	usart_t *usart = (usart_t *)device;
+	const char *bp = buf;
+	int count = 0;
 	return -1;
 }
 
