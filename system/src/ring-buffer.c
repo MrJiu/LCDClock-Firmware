@@ -51,9 +51,9 @@ int ring_buffer_putchar(ring_buffer_t buffer, char ch)
 		return -1;
 
 	buffer->buffer[buffer->head] = ch;
-	buffer->head++;
+	buffer->head = (buffer->head + 1) % buffer->length;
 	if (buffer->head == buffer->tail)
-		buffer->tail++;
+		buffer->tail = (buffer->tail + 1) % buffer->length;
 	return ch;
 }
 
@@ -66,7 +66,7 @@ int ring_buffer_getchar(ring_buffer_t buffer)
 		return -1;
 
 	char ch = buffer->buffer[buffer->tail];
-	buffer->tail++;
+	buffer->tail = (buffer->tail + 1) % buffer->length;
 
 	return ch;
 }
@@ -101,4 +101,9 @@ int ring_buffer_getalloc(ring_buffer_t buffer)
 		return -1;
 
 	return buffer->length;
+}
+
+int ring_buffer_getspace(ring_buffer_t buffer)
+{
+	return buffer->length - ring_buffer_getlength(buffer);
 }

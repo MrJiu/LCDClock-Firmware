@@ -23,6 +23,7 @@ int ring_buffer_getchar(ring_buffer_t buffer);
 int ring_buffer_peekchar(ring_buffer_t buffer);
 int ring_buffer_getlength(ring_buffer_t buffer);
 int ring_buffer_getalloc(ring_buffer_t buffer);
+int ring_buffer_getspace(ring_buffer_t buffer);
 
 __END_DECLS
 

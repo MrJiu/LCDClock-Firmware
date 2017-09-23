@@ -11,6 +11,7 @@
 #include <sys/stat.h>
 #include <stdarg.h>
 #include <dreamos-rt/ring-buffer.h>
+#include <sys/fcntl.h>
 
 #include <errno.h>
 #undef errno
@@ -36,7 +37,27 @@ struct usart_s
 
 static void usart_interrupt(usart_t *usart)
 {
-	;
+	if (usart->USART->ISR & USART_ISR_RXNE)
+	{
+		// We have an incoming byte.
+
+		ring_buffer_putchar(usart->read_buffer, usart->USART->RDR);
+	}
+
+	if (usart->USART->ISR & USART_ISR_TXE)
+	{
+		// We have space for an outgoing byte.
+		int ch = ring_buffer_getchar(usart->write_buffer);
+		if (ch < 0)
+		{
+			// We ran out of bytes to send...
+			usart->USART->CR1 &= ~USART_CR1_TXEIE;
+		}
+		else
+		{
+			usart->USART->TDR = ch;
+		}
+	}
 }
 
 static inline void usart_wait_for_write(usart_t *usart)
@@ -78,7 +99,8 @@ static int usart_open(device_t *device, int mode, ...)
 
 	usart->USART->CR1 |= USART_CR1_UE;
 	__DMB();
-	usart->USART->CR1 |= USART_CR1_TE | USART_CR1_RE;
+	usart->USART->RQR |= USART_RQR_TXFRQ | USART_RQR_RXFRQ;
+	usart->USART->CR1 |= USART_CR1_TE | USART_CR1_RE | USART_CR1_RXNEIE;
 
 	usart->open_mode = mode;
 
@@ -111,12 +133,30 @@ static int usart_close(device_t *device)
 
 static inline int usart_getchar_nonblock(usart_t *usart)
 {
+	int ch = ring_buffer_getchar(usart->read_buffer);
 
+	if (ch < 0)
+		return -EAGAIN;
+	else
+		return ch;
 }
 
 static inline int usart_putchar_nonblock(usart_t *usart, char ch)
 {
+	if (ring_buffer_getspace(usart->write_buffer) < 1)
+		return -EAGAIN;
 
+	if (usart->USART->ISR & USART_ISR_TXE)
+	{
+		usart->USART->TDR = ch;
+	}
+	else
+	{
+		ring_buffer_putchar(usart->write_buffer, ch);
+		usart->USART->CR1 |= USART_CR1_TXEIE;
+	}
+
+	return 0;
 }
 
 static int usart_read(device_t *device, void *buf, size_t len)
@@ -130,10 +170,14 @@ static int usart_read(device_t *device, void *buf, size_t len)
 		int ch = usart_getchar_nonblock(usart);
 		if (ch < 0)
 		{
+			while ((ch == -EAGAIN) && !(usart->open_mode & O_NONBLOCK))
+				ch = usart_getchar_nonblock(usart); // Block if we have been asked to.
+
 			errno = -ch;
 			break;
 		}
 		bp[idx] = ch;
+		count++;
 	}
 
 	return count;
@@ -144,7 +188,23 @@ static int usart_write(device_t *device, const void *buf, size_t len)
 	usart_t *usart = (usart_t *)device;
 	const char *bp = buf;
 	int count = 0;
-	return -1;
+
+	for (int idx = 0; idx < len; idx++)
+	{
+		char ch = bp[idx];
+		int r = usart_putchar_nonblock(usart, ch);
+		if (r < 0)
+		{
+			while ((r == -EAGAIN) && !(usart->open_mode & O_NONBLOCK))
+				r = usart_putchar_nonblock(usart, ch); // Block if we have been asked to.
+
+			errno = -r;
+			break;
+		}
+		count++;
+	}
+
+	return count;
 }
 
 static int usart_ioctl(device_t *device, unsigned long func, ...)

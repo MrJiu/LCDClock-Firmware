@@ -8,9 +8,13 @@
 #include <stm32f3xx.h>
 #include <stdio.h>
 
+#include "board.h"
+
 int main(void)
 {
-	fprintf(stderr, "Ready.\r\n");
+	board_init();
+
+	volatile int val = fprintf(stderr, "Ready.\r\n");
 
 	for (;;)
 		__WFE();

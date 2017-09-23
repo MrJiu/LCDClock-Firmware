@@ -149,6 +149,7 @@ SECTIONS
     
     .data :
     {
+		*(vtable)
 		*(.data*)
 		. = ALIGN(4);
     } > IRAM AT > IROM = 0xff
