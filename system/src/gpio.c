@@ -8,7 +8,7 @@
 #include <dreamos-rt/gpio.h>
 #include <stm32f3xx.h>
 
-__attribute__((constructor)) void GPIO_Initialize(void)
+__attribute__((constructor(1000))) void GPIO_Initialize(void)
 {
 	RCC->AHBENR |= RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN;
 }
@@ -73,6 +73,7 @@ void pinMode(uint8_t pin, uint16_t mode)
 	SET_FIELD(GPIO->OSPEEDR, 0x3 << (pinid * 2), speed << (pinid * 2));
 	SET_FIELD(GPIO->PUPDR, 0x3 << (pinid * 2), pupd << (pinid * 2));
 	SET_FIELD(GPIO->AFR[(pinid & 0x8) >> 3], 0xf << ((pinid & 0x7) * 4), afio << ((pinid & 0x7) * 4));
+	__DSB();
 }
 
 void digitalWrite(uint8_t pin, bool value)
@@ -83,6 +84,7 @@ void digitalWrite(uint8_t pin, bool value)
 		return;
 
 	SET_FIELD(GPIO->ODR, 0x1 << pinid, (value ? 0x1 : 0x0) << pinid);
+	__DSB();
 }
 
 bool digitalRead(uint8_t pin)

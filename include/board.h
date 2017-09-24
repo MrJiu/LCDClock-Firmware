@@ -9,10 +9,14 @@
 #define INCLUDE_BOARD_H_
 
 #include <sys/cdefs.h>
+#include <stdint.h>
 
 __BEGIN_DECLS
 
-void board_init(void);
+#define BOARD_ID		((uint8_t *)0x1ffff7ac)
+
+extern const uint8_t board_id[36];
+extern const uint32_t board_hash;
 
 __END_DECLS
 

@@ -12,8 +12,8 @@
 #include <stm32f303xc_it.h>
 #include <stm32f3xx.h>
 
-#define USART_READ_BUFFER_SIZE		64
-#define USART_WRITE_BUFFER_SIZE		64
+#define USART_READ_BUFFER_SIZE		128
+#define USART_WRITE_BUFFER_SIZE		128
 #define USART_DEFAULT_BAUDRATE		115200
 
 // USART ioctl's

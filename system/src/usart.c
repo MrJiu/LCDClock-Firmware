@@ -35,16 +35,16 @@ struct usart_s
 	ring_buffer_t write_buffer;
 };
 
-static void usart_interrupt(usart_t *usart)
+__attribute__((section(".ccmcode"))) static void usart_interrupt(usart_t *usart)
 {
-	if (usart->USART->ISR & USART_ISR_RXNE)
+	if ((usart->USART->CR1 & USART_CR1_RXNEIE) && (usart->USART->ISR & USART_ISR_RXNE))
 	{
 		// We have an incoming byte.
 
 		ring_buffer_putchar(usart->read_buffer, usart->USART->RDR);
 	}
 
-	if (usart->USART->ISR & USART_ISR_TXE)
+	if ((usart->USART->CR1 & USART_CR1_TXEIE) && (usart->USART->ISR & USART_ISR_TXE))
 	{
 		// We have space for an outgoing byte.
 		int ch = ring_buffer_getchar(usart->write_buffer);
@@ -98,9 +98,13 @@ static int usart_open(device_t *device, int mode, ...)
 	NVIC_EnableIRQ(usart->IRQn);
 
 	usart->USART->CR1 |= USART_CR1_UE;
-	__DMB();
+	__DSB();
+	usart->USART->CR1 |= USART_CR1_TE | USART_CR1_RE;
+	__DSB();
 	usart->USART->RQR |= USART_RQR_TXFRQ | USART_RQR_RXFRQ;
-	usart->USART->CR1 |= USART_CR1_TE | USART_CR1_RE | USART_CR1_RXNEIE;
+	__DSB();
+	usart->USART->CR1 |= USART_CR1_RXNEIE;
+	__DSB();
 
 	usart->open_mode = mode;
 
@@ -131,8 +135,9 @@ static int usart_close(device_t *device)
 	return 0;
 }
 
-static inline int usart_getchar_nonblock(usart_t *usart)
+static inline int usart_getchar(usart_t *usart)
 {
+	while (!ring_buffer_getlength(usart->read_buffer));
 	int ch = ring_buffer_getchar(usart->read_buffer);
 
 	if (ch < 0)
@@ -141,17 +146,15 @@ static inline int usart_getchar_nonblock(usart_t *usart)
 		return ch;
 }
 
-static inline int usart_putchar_nonblock(usart_t *usart, char ch)
+static inline int usart_putchar(usart_t *usart, char ch)
 {
-	if (ring_buffer_getspace(usart->write_buffer) < 1)
-		return -EAGAIN;
-
 	if (usart->USART->ISR & USART_ISR_TXE)
 	{
 		usart->USART->TDR = ch;
 	}
 	else
 	{
+		while (!ring_buffer_getspace(usart->write_buffer));
 		ring_buffer_putchar(usart->write_buffer, ch);
 		usart->USART->CR1 |= USART_CR1_TXEIE;
 	}
@@ -167,12 +170,9 @@ static int usart_read(device_t *device, void *buf, size_t len)
 
 	for (int idx = 0; idx < len; idx++)
 	{
-		int ch = usart_getchar_nonblock(usart);
+		int ch = usart_getchar(usart);
 		if (ch < 0)
 		{
-			while ((ch == -EAGAIN) && !(usart->open_mode & O_NONBLOCK))
-				ch = usart_getchar_nonblock(usart); // Block if we have been asked to.
-
 			errno = -ch;
 			break;
 		}
@@ -192,12 +192,9 @@ static int usart_write(device_t *device, const void *buf, size_t len)
 	for (int idx = 0; idx < len; idx++)
 	{
 		char ch = bp[idx];
-		int r = usart_putchar_nonblock(usart, ch);
+		int r = usart_putchar(usart, ch);
 		if (r < 0)
 		{
-			while ((r == -EAGAIN) && !(usart->open_mode & O_NONBLOCK))
-				r = usart_putchar_nonblock(usart, ch); // Block if we have been asked to.
-
 			errno = -r;
 			break;
 		}
@@ -305,7 +302,7 @@ __attribute__((section(".ccm"))) static usart_t tty0 =
 		RCC_APB2ENR_USART1EN
 };
 __attribute__((section(".devices"))) const usart_t *TTY0 = &tty0;
-void USART1_Handler(void) { usart_interrupt(&tty0); }
+__attribute__((section(".ccmcode"))) void USART1_Handler(void) { usart_interrupt(&tty0); }
 
 __attribute__((section(".ccm"))) static usart_t tty1 =
 {
@@ -319,7 +316,7 @@ __attribute__((section(".ccm"))) static usart_t tty1 =
 		RCC_APB1ENR_USART2EN
 };
 __attribute__((section(".devices"))) const usart_t *TTY1 = &tty1;
-void USART2_Handler(void) { usart_interrupt(&tty1); }
+__attribute__((section(".ccmcode"))) void USART2_Handler(void) { usart_interrupt(&tty1); }
 
 __attribute__((section(".ccm"))) static usart_t tty2 =
 {
@@ -333,7 +330,7 @@ __attribute__((section(".ccm"))) static usart_t tty2 =
 		RCC_APB1ENR_USART3EN
 };
 __attribute__((section(".devices"))) const usart_t *TTY2 = &tty2;
-void USART3_Handler(void) { usart_interrupt(&tty2); }
+__attribute__((section(".ccmcode"))) void USART3_Handler(void) { usart_interrupt(&tty2); }
 
 /*
 __attribute__((section(".ccm"))) static usart_t tty3 =
@@ -348,7 +345,7 @@ __attribute__((section(".ccm"))) static usart_t tty3 =
 		RCC_APB1ENR_UART4EN
 };
 __attribute__((section(".devices"))) const usart_t *TTY3 = &tty3;
-void UART4_Handler(void) { usart_interrupt(&tty3); }
+__attribute__((section(".ccmcode"))) void UART4_Handler(void) { usart_interrupt(&tty3); }
 
 __attribute__((section(".ccm"))) static usart_t tty4 =
 {
@@ -362,5 +359,5 @@ __attribute__((section(".ccm"))) static usart_t tty4 =
 		RCC_APB1ENR_UART5EN
 };
 __attribute__((section(".devices"))) const usart_t *TTY4 = &tty4;
-void UART5_Handler(void) { usart_interrupt(&tty4); }
+__attribute__((section(".ccmcode"))) void UART5_Handler(void) { usart_interrupt(&tty4); }
 */

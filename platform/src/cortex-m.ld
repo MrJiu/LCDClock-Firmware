@@ -21,6 +21,7 @@
  * data and CCM code sections in place, before calling _start like usual.
  */
 ENTRY(Reset_Handler)
+EXTERN(isr_vector)
 
 SECTIONS
 {
@@ -58,9 +59,15 @@ SECTIONS
 		PROVIDE(__vector_size = .); LONG(SIZEOF(.vector));
 		PROVIDE(__devices_addr = .); LONG(ADDR(.devices));
 		PROVIDE(__devices_size = .); LONG(SIZEOF(.devices));
+		
+		PROVIDE(__ccmram_begin = .); LONG(ORIGIN(CCM));
+		PROVIDE(__ccmram_size = .); LONG(LENGTH(CCM));
 		PROVIDE(__ccm_load = .); LONG(LOADADDR(.ccm));
 		PROVIDE(__ccm_addr = .); LONG(ADDR(.ccm));
 		PROVIDE(__ccm_size = .); LONG(SIZEOF(.ccm));
+		
+		PROVIDE(__mem_begin = .); LONG(ORIGIN(IRAM));
+		PROVIDE(__mem_size = .); LONG(LENGTH(IRAM));
 		PROVIDE(__data_load = .); LONG(LOADADDR(.data));
 		PROVIDE(__data_addr = .); LONG(ADDR(.data));
 		PROVIDE(__data_size = .); LONG(SIZEOF(.data));

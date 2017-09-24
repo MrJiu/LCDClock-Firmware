@@ -105,5 +105,5 @@ int ring_buffer_getalloc(ring_buffer_t buffer)
 
 int ring_buffer_getspace(ring_buffer_t buffer)
 {
-	return buffer->length - ring_buffer_getlength(buffer);
+	return buffer->length - ring_buffer_getlength(buffer) - 1;
 }
