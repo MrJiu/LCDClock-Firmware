@@ -36,6 +36,7 @@
 
 Debug/
 Release/
+
 !cmsis/lib/*.a
 
 .metadata

@@ -7,6 +7,7 @@
 
 #include <sys/fcntl.h>
 #include <unistd.h>
+#include <stdio.h>
 
 __attribute__((constructor)) void stdio_init(void)
 {
@@ -21,4 +22,7 @@ __attribute__((constructor)) void stdio_init(void)
 
 	if (tty0 != STDOUT_FILENO && tty0 != STDERR_FILENO)
 		close(tty0);
+
+	setvbuf(stdout, NULL, _IONBF, 0);
+	setvbuf(stderr, NULL, _IONBF, 0);
 }

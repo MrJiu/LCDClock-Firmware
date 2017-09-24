@@ -19,6 +19,8 @@ extern int errno;
 
 typedef struct usart_s usart_t;
 
+void yield(void);
+
 struct usart_s
 {
 	// Static data.
@@ -137,7 +139,8 @@ static int usart_close(device_t *device)
 
 static inline int usart_getchar(usart_t *usart)
 {
-	while (!ring_buffer_getlength(usart->read_buffer));
+	while (!ring_buffer_getlength(usart->read_buffer))
+		yield();
 	int ch = ring_buffer_getchar(usart->read_buffer);
 
 	if (ch < 0)
@@ -154,7 +157,8 @@ static inline int usart_putchar(usart_t *usart, char ch)
 	}
 	else
 	{
-		while (!ring_buffer_getspace(usart->write_buffer));
+		while (!ring_buffer_getspace(usart->write_buffer))
+			yield();
 		ring_buffer_putchar(usart->write_buffer, ch);
 		usart->USART->CR1 |= USART_CR1_TXEIE;
 	}
