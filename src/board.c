@@ -41,7 +41,7 @@ __attribute__((constructor(1001))) void board_init(void)
 			-1,						// DBG_TDO
 			-1,						// DBG_TRST
 			OUTPUT,					// WL_RESET
-			AFIO_PU(GPIO_MODE_AF2),	// LCD_BL
+			AFIO_PU(GPIO_MODE_AF5),	// LCD_BL
 			OUTPUT,					// WL_EN
 
 			AFIO_OD(GPIO_MODE_AF4),	// I2C_SCL

@@ -12,6 +12,7 @@
 #include <unistd.h>
 
 #include "board.h"
+#include "pwm.h"
 
 extern uint32_t __mem_begin, __mem_size;
 extern uint32_t __ccmram_size, __ccm_size;
@@ -26,6 +27,8 @@ int main(void)
 	fprintf(stderr, "%lu bytes stack memory allocated. Total %lu bytes.\r\n", __ccm_size, __ccmram_size);
 	fprintf(stderr, "%lu bytes heap memory allocated. Total %lu bytes.\r\n", (uint32_t)sbrk(0) - __mem_begin, __mem_size);
 	fprintf(stderr, "Ready.\r\n");
+
+	analogWrite(0, 0x8000);
 
 	for (;;)
 	{

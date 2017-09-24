@@ -37,6 +37,14 @@ struct usart_s
 	ring_buffer_t write_buffer;
 };
 
+__attribute__((constructor(1000))) void usart_init(void)
+{
+	// Move a USARTs to SYSCLK clock.
+	SET_FIELD(RCC->CFGR3, RCC_CFGR3_USART1SW, RCC_CFGR3_USART1SW_SYSCLK);
+	SET_FIELD(RCC->CFGR3, RCC_CFGR3_USART2SW, RCC_CFGR3_USART2SW_SYSCLK);
+	SET_FIELD(RCC->CFGR3, RCC_CFGR3_USART3SW, RCC_CFGR3_USART3SW_SYSCLK);
+}
+
 __attribute__((section(".ccmcode"))) static void usart_interrupt(usart_t *usart)
 {
 	if ((usart->USART->CR1 & USART_CR1_RXNEIE) && (usart->USART->ISR & USART_ISR_RXNE))
