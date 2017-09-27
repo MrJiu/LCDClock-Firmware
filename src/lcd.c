@@ -153,11 +153,13 @@ static int lcd_ioctl(device_t *device, unsigned long func, ...)
 	{
 	case IOCTL_LCD_CLEAR:
 		lcd_write_value(lcd, false, 0x01);
+		lcd->idx = 0;
 		usleep(1500);
 		return 0;
 
 	case IOCTL_LCD_HOME:
 		lcd_write_value(lcd, false, 0x02);
+		lcd->idx = 0;
 		return 0;
 
 	case IOCTL_LCD_SET_DIRECTION:
@@ -213,7 +215,7 @@ static int lcd_ioctl(device_t *device, unsigned long func, ...)
 
 	case IOCTL_LCD_SET_CHARACTER:
 	{
-		lcd_character_t ch = (lcd_character_t)value;
+		lcd_character_t *ch = (lcd_character_t *)value;
 		uint8_t charaddr = (ch->character & 0x7) << 3;
 		lcd_write_value(lcd, false, 0x40 | charaddr);
 		for (int idx = 0; idx < 8; idx++)

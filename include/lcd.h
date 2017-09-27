@@ -39,7 +39,7 @@ typedef struct lcd_character
 {
 	uint8_t character;
 	uint8_t bitmap[8];
-} *lcd_character_t;
+} lcd_character_t;
 
 __BEGIN_DECLS
 

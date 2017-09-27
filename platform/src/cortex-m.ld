@@ -36,18 +36,18 @@ SECTIONS
 		KEEP(*(.vector))
 		ASSERT(. != __vector_start, "The interrupt vector is missing.");
 		. = ALIGN(4);
-	} > CCM AT > IROM = 0xff
+	} > CCM AT > IROM
 	
 	/* Now comes the bulk of the application code in Flash. */
 	.text :
 	{
 		*(.text*)
-	} > IROM = 0xff
+	} > IROM
 	
 	.devices :
 	{
 		KEEP(*(.devices*))
-	} > IROM = 0xff
+	} > IROM
 	
 	.rodata :
 	{
@@ -75,17 +75,17 @@ SECTIONS
 		PROVIDE(__bss_size = .); LONG(SIZEOF(.bss));
 		PROVIDE(__bss_end = .); LONG(ADDR(.bss) + SIZEOF(.bss));
 		PROVIDE(__mem_end = .); LONG(ORIGIN(IRAM) + LENGTH(IRAM));
-	} > IROM = 0xff
+	} > IROM
 	
 	.init :
 	{
 		KEEP(*(.init))
-	} > IROM = 0xff
+	} > IROM
 	
 	.fini :
 	{
 		KEEP(*(.fini))
-	} > IROM = 0xff
+	} > IROM
 	
     /*
      * Stack unwinding and exception handling sections.
@@ -100,12 +100,12 @@ SECTIONS
     .ARM.extab : /* exception unwinding information */
     {
         *(.ARM.extab*)
-    } > IROM = 0xff
+    } > IROM
     
     .ARM.exidx : /* index entries for section unwinding */
     {
         *(.ARM.exidx*)
-    } > IROM = 0xff
+    } > IROM
 
     /*
      * Newlib and Eglibc (at least) need these for C++ support.
@@ -117,7 +117,7 @@ SECTIONS
         PROVIDE_HIDDEN(__preinit_array_start = .);
         KEEP(*(.preinit_array*))
         PROVIDE_HIDDEN(__preinit_array_end = .);
-    } > IROM = 0xff
+    } > IROM
     
     .init_array :
     {
@@ -125,7 +125,7 @@ SECTIONS
         KEEP(*(SORT(.init_array.*)))
         KEEP(*(.init_array*))
         PROVIDE_HIDDEN(__init_array_end = .);
-    } > IROM = 0xff
+    } > IROM
     
     .fini_array :
     {
@@ -133,7 +133,7 @@ SECTIONS
         KEEP(*(SORT(.fini_array.*)))
         KEEP(*(.fini_array*))
         PROVIDE_HIDDEN(__fini_array_end = .);
-    } > IROM = 0xff
+    } > IROM
     
     . = ALIGN(4);
     
@@ -149,7 +149,7 @@ SECTIONS
     {
 		*(.ccm*)
 		. = ALIGN(4);
-    } > CCM AT > IROM = 0xff
+    } > CCM AT > IROM
     
     /* Stack */
     PROVIDE(__stack = ORIGIN(CCM) + LENGTH(CCM));
@@ -159,7 +159,7 @@ SECTIONS
 		*(vtable)
 		*(.data*)
 		. = ALIGN(4);
-    } > IRAM AT > IROM = 0xff
+    } > IRAM AT > IROM
     
     /* The bss section does not contain data, and is instead zeroed. */
     .bss :
