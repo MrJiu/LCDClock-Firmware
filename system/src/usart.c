@@ -12,14 +12,17 @@
 #include <stdarg.h>
 #include <dreamos-rt/ring-buffer.h>
 #include <sys/fcntl.h>
+#include <sys/poll.h>
+#include <dreamos-rt/device.h>
+#include <dreamos-rt/time.h>
+#include <stm32f303xc_it.h>
+#include <stm32f3xx.h>
 
 #include <errno.h>
 #undef errno
 extern int errno;
 
 typedef struct usart_s usart_t;
-
-void yield(void);
 
 struct usart_s
 {
@@ -259,8 +262,6 @@ static int usart_poll(device_t *device, short events, short *revents)
 	return -1;
 }
 
-static const driver_t usart_driver;
-
 static int usart_fstat(device_t *device, struct stat *st)
 {
 	if (st)
@@ -289,17 +290,15 @@ static int usart_isatty(device_t *device)
 
 static const driver_t usart_driver =
 {
-		"stm32f3xx-usart",
-		NULL,
-		usart_open,
-		usart_close,
-		usart_read,
-		usart_write,
-		usart_ioctl,
-		usart_poll,
-		usart_fstat,
-		NULL,
-		usart_isatty
+		.name = "stm32f3xx-usart",
+		.open = usart_open,
+		.close = usart_close,
+		.read = usart_read,
+		.write = usart_write,
+		.ioctl = usart_ioctl,
+		.poll = usart_poll,
+		.fstat = usart_fstat,
+		.isatty = usart_isatty
 };
 
 __attribute__((section(".ccm"))) static usart_t tty0 =

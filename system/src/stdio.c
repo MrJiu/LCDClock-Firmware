@@ -23,6 +23,7 @@ __attribute__((constructor)) void stdio_init(void)
 	if (tty0 != STDOUT_FILENO && tty0 != STDERR_FILENO)
 		close(tty0);
 
+	setvbuf(stdin, NULL, _IONBF, 0);
 	setvbuf(stdout, NULL, _IONBF, 0);
 	setvbuf(stderr, NULL, _IONBF, 0);
 }

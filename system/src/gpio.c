@@ -78,7 +78,7 @@ void pinMode(uint8_t pin, uint16_t mode)
 
 void digitalWrite(uint8_t pin, bool value)
 {
-	uint8_t pinid = 0;
+	uint8_t pinid = pin & 0x0f;
 	GPIO_TypeDef *GPIO = GPIO_GetPin(pin, &pinid);
 	if (!GPIO)
 		return;
@@ -89,7 +89,7 @@ void digitalWrite(uint8_t pin, bool value)
 
 bool digitalRead(uint8_t pin)
 {
-	uint8_t pinid = 0;
+	uint8_t pinid = pin & 0x0f;
 	GPIO_TypeDef *GPIO = GPIO_GetPin(pin, &pinid);
 	if (!GPIO)
 		return false;

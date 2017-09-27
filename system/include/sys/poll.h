@@ -21,6 +21,16 @@ struct pollfd
 
 typedef uint32_t nfds_t;
 
+enum
+{
+	POLLIN		= 0x0001,
+	POLLPRI		= 0x0002,
+	POLLOUT		= 0x0004,
+	POLLERR		= 0x0008,
+	POLLHUP		= 0x0010,
+	POLLNVAL		= 0x0020
+};
+
 __BEGIN_DECLS
 int poll(struct pollfd pollfds[], nfds_t numfds, int timeout);
 __END_DECLS

@@ -5,16 +5,19 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
 ../src/board.c \
+../src/lcd.c \
 ../src/main.c \
 ../src/pwm.c 
 
 OBJS += \
 ./src/board.o \
+./src/lcd.o \
 ./src/main.o \
 ./src/pwm.o 
 
 C_DEPS += \
 ./src/board.d \
+./src/lcd.d \
 ./src/main.d \
 ./src/pwm.d 
 

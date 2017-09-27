@@ -8,6 +8,8 @@
 #include <stm32f3xx.h>
 #include <stm32f303xc_it.h>
 
+#include <dreamos-rt/time.h>
+
 #define _COMPILING_NEWLIB
 #include <time.h>
 #include <sys/time.h>
@@ -47,7 +49,7 @@ uint32_t micros(void)
 	uint32_t ticks;
 	do
 		ticks = SysTick->LOAD - SysTick->VAL;
-	while (ms == millis_counter);
+	while (ms != millis_counter);
 
 	return ms * 1000 + (ticks / (SystemCoreClock / 1000000));
 }
@@ -68,10 +70,16 @@ int usleep(useconds_t useconds)
 	uint32_t ticks;
 	do
 		ticks = SysTick->VAL;
-	while (ms == millis_counter);
+	while (ms != millis_counter && ticks > 20);
+	ms = millis_counter;
 
 	int32_t ms_end = ms + (useconds / 1000);
 	int32_t ticks_end = ticks - (useconds % 1000) * (SystemCoreClock / 1000000);
+	if (ticks_end < 0)
+	{
+		ms_end++;
+		ticks_end += SysTick->LOAD;
+	}
 
 	while (ms_end - (int32_t)millis_counter > 0)
 		yield();

@@ -7,6 +7,7 @@
 
 #include <dreamos-rt/device.h>
 #include <dreamos-rt/parameters.h>
+#include <dreamos-rt/time.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -221,7 +222,7 @@ int _read(int fd, void *buf, size_t len)
 	if (!file)
 		return -1;
 
-	if ((file->flags | FREAD) != FREAD)
+	if ((file->flags & FREAD) != FREAD)
 	{
 		errno = EACCES;
 		return -1;
@@ -247,7 +248,7 @@ int _write(int fd, const void *buf, size_t len)
 	if (!file)
 		return -1;
 
-	if ((file->flags | FWRITE) != FWRITE)
+	if ((file->flags & FWRITE) != FWRITE)
 	{
 		errno = EACCES;
 		return -1;
@@ -390,5 +391,30 @@ int _isatty(int fd)
 
 int poll(struct pollfd pollfds[], nfds_t numfds, int timeout)
 {
-	return -1;
+	int count = 0;
+	int32_t end_time = millis() + timeout;
+
+	do
+	{
+		for (int idx = 0; idx < numfds; idx++)
+		{
+			struct pollfd *pfd = &(pollfds[idx]);
+			struct file_desc *file = find_file(pfd->fd);
+
+			pfd->revents = 0;
+			short evmask = pfd->events | POLLERR | POLLHUP | POLLNVAL;
+
+			if (!file)
+				pfd->revents = POLLNVAL;
+			else if (file->device->driver->poll)
+				pfd->revents |= (file->device->driver->poll(file->device, pfd->events, &(pfd->revents)) < 0) ? POLLERR : 0;
+
+			pfd->revents &= evmask;
+
+			if (pfd->revents)
+				count++;
+		}
+	} while (!count && (end_time - (int32_t)millis() > 0));
+
+	return count;
 }
