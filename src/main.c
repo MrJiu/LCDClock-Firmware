@@ -54,6 +54,8 @@ int main(void)
 	ioctl(DISP, IOCTL_LCD_SET_CHARACTER, &battery_half_empty);
 	ioctl(DISP, IOCTL_LCD_SET_CHARACTER, &battery_half_full);
 	ioctl(DISP, IOCTL_LCD_SET_CHARACTER, &battery_full);
+	ioctl(DISP, IOCTL_LCD_CLEAR);
+	ioctl(DISP, IOCTL_LCD_HOME);
 
 	analogWrite(0, 0x8000);
 	last_update = clock() - CLOCKS_PER_SEC;
@@ -63,6 +65,8 @@ int main(void)
 		clock_t now = clock();
 		if (now - last_update >= CLOCKS_PER_SEC / 2)
 		{
+			last_update = now;
+
 			memset(lcd_line, 0, sizeof(lcd_line));
 
 			time_t t = time(NULL);

@@ -75,7 +75,7 @@ int usleep(useconds_t useconds)
 
 	int32_t ms_end = ms + (useconds / 1000);
 	int32_t ticks_end = ticks - (useconds % 1000) * (SystemCoreClock / 1000000);
-	if (ticks_end < 0)
+	while (ticks_end < 0)
 	{
 		ms_end++;
 		ticks_end += SysTick->LOAD;
