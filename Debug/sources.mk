@@ -27,6 +27,7 @@ CPP_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+contrib/libusb_stm32/src \
 platform/src \
 src \
 system/src \

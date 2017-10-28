@@ -13,14 +13,19 @@
  *
  *    IROM: Internal Flash.
  *    IRAM: Internal RAM, used for heap, allocations and DMA.
- *    CCM:  Core coupled RAM, used for time-sensitive code and stack.
  */
+ 
+ MEMORY
+{
+	IROM (r x) : ORIGIN = 0x08000000, LENGTH = 256k
+	IRAM (rw ) : ORIGIN = 0x20000000, LENGTH = 40k
+}
 
 /* On this runtime environment, the function Reset_Handler is our entry point,
  * instead of the usual _start. This function prepares the clocks, and copies
  * data and CCM code sections in place, before calling _start like usual.
  */
-ENTRY(Reset_Handler)
+ENTRY(Reset_IRQHandler)
 EXTERN(isr_vector)
 
 SECTIONS
@@ -54,27 +59,34 @@ SECTIONS
 		*(.rodata*)
 		
 		/* Address tables */
-		PROVIDE(__vector_load = .); LONG(LOADADDR(.vector));
-		PROVIDE(__vector_addr = .); LONG(ADDR(.vector));
-		PROVIDE(__vector_size = .); LONG(SIZEOF(.vector));
 		PROVIDE(__devices_addr = .); LONG(ADDR(.devices));
 		PROVIDE(__devices_size = .); LONG(SIZEOF(.devices));
-		
-		PROVIDE(__ccmram_begin = .); LONG(ORIGIN(CCM));
-		PROVIDE(__ccmram_size = .); LONG(LENGTH(CCM));
-		PROVIDE(__ccm_load = .); LONG(LOADADDR(.ccm));
-		PROVIDE(__ccm_addr = .); LONG(ADDR(.ccm));
-		PROVIDE(__ccm_size = .); LONG(SIZEOF(.ccm));
+		PROVIDE(__copy_addr = .); LONG(ADDR(.copytable));
+		PROVIDE(__copy_size = .); LONG(SIZEOF(.copytable));
+		PROVIDE(__zero_addr = .); LONG(ADDR(.zerotable));
+		PROVIDE(__zero_size = .); LONG(SIZEOF(.zerotable));
 		
 		PROVIDE(__mem_begin = .); LONG(ORIGIN(IRAM));
 		PROVIDE(__mem_size = .); LONG(LENGTH(IRAM));
-		PROVIDE(__data_load = .); LONG(LOADADDR(.data));
-		PROVIDE(__data_addr = .); LONG(ADDR(.data));
-		PROVIDE(__data_size = .); LONG(SIZEOF(.data));
-		PROVIDE(__bss_addr = .); LONG(ADDR(.bss));
-		PROVIDE(__bss_size = .); LONG(SIZEOF(.bss));
 		PROVIDE(__bss_end = .); LONG(ADDR(.bss) + SIZEOF(.bss));
 		PROVIDE(__mem_end = .); LONG(ORIGIN(IRAM) + LENGTH(IRAM));
+	} > IROM
+	
+	.copytable :
+	{
+		LONG(LOADADDR(.vector));
+		LONG(ADDR(.vector));
+		LONG(SIZEOF(.vector));
+		
+		LONG(LOADADDR(.data));
+		LONG(ADDR(.data));
+		LONG(SIZEOF(.data));
+	} > IROM
+	
+	.zerotable :
+	{
+		LONG(ADDR(.bss));
+		LONG(SIZEOF(.bss));
 	} > IROM
 	
 	.init :
@@ -141,19 +153,6 @@ SECTIONS
      * volatile memory locations but have a copy of their contents stored in
      * Flash. Instead of the usual sidata symbol, the GNU LD LOADADDR() is used to.
      */
-     
-    /* There are some code we want to run as fast as possible. Those are placed
-     * in the .ccm section here.
-     */
-    .ccm :
-    {
-		*(.ccm*)
-		. = ALIGN(4);
-    } > CCM AT > IROM
-    
-    /* Stack */
-    PROVIDE(__stack = ORIGIN(CCM) + LENGTH(CCM));
-    
     .data :
     {
 		*(vtable)
@@ -169,4 +168,6 @@ SECTIONS
 		. = ALIGN(4);
 		PROVIDE(__bss_end__ = .);
     } > IRAM
+    
+    PROVIDE(__stack = ORIGIN(IRAM) + LENGTH(IRAM));
 }

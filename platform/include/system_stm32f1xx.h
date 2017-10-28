@@ -1,14 +1,14 @@
 /**
   ******************************************************************************
-  * @file    system_stm32f3xx.h
+  * @file    system_stm32f10x.h
   * @author  MCD Application Team
-  * @version V1.1.0
-  * @date    12-Sept-2014
-  * @brief   CMSIS Cortex-M4 Device System Source File for STM32F3xx devices.  
+  * @version V4.2.0
+  * @date    31-March-2017
+  * @brief   CMSIS Cortex-M3 Device Peripheral Access Layer System Header File.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2014 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -33,27 +33,27 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */ 
+  */
 
 /** @addtogroup CMSIS
   * @{
   */
 
-/** @addtogroup stm32f3xx_system
+/** @addtogroup stm32f10x_system
   * @{
   */  
   
 /**
   * @brief Define to prevent recursive inclusion
   */
-#ifndef __SYSTEM_STM32F3XX_H
-#define __SYSTEM_STM32F3XX_H
+#ifndef __SYSTEM_STM32F10X_H
+#define __SYSTEM_STM32F10X_H
 
 #ifdef __cplusplus
  extern "C" {
 #endif 
 
-/** @addtogroup STM32F3xx_System_Includes
+/** @addtogroup STM32F10x_System_Includes
   * @{
   */
 
@@ -62,25 +62,19 @@
   */
 
 
-/** @addtogroup STM32F3xx_System_Exported_types
+/** @addtogroup STM32F10x_System_Exported_types
   * @{
   */
-  /* This variable is updated in three ways:
-      1) by calling CMSIS function SystemCoreClockUpdate()
-      3) by calling HAL API function HAL_RCC_GetHCLKFreq()
-      3) by calling HAL API function HAL_RCC_ClockConfig()
-         Note: If you use this function to configure the system clock; then there
-               is no need to call the 2 first functions listed above, since SystemCoreClock
-               variable is updated automatically.
-  */
+
 extern uint32_t SystemCoreClock;          /*!< System Clock Frequency (Core Clock) */
-
+extern const uint8_t  AHBPrescTable[16U];  /*!< AHB prescalers table values */
+extern const uint8_t  APBPrescTable[8U];   /*!< APB prescalers table values */
 
 /**
   * @}
   */
 
-/** @addtogroup STM32F3xx_System_Exported_Constants
+/** @addtogroup STM32F10x_System_Exported_Constants
   * @{
   */
 
@@ -88,23 +82,20 @@ extern uint32_t SystemCoreClock;          /*!< System Clock Frequency (Core Cloc
   * @}
   */
 
-/** @addtogroup STM32F3xx_System_Exported_Macros
+/** @addtogroup STM32F10x_System_Exported_Macros
   * @{
   */
-
-#define SET_FIELD(reg, field, value) (reg) = ((reg) & (~(field))) | ((value) & (field))
 
 /**
   * @}
   */
 
-/** @addtogroup STM32F3xx_System_Exported_Functions
+/** @addtogroup STM32F10x_System_Exported_Functions
   * @{
   */
   
 extern void SystemInit(void);
 extern void SystemCoreClockUpdate(void);
-
 /**
   * @}
   */
@@ -113,7 +104,7 @@ extern void SystemCoreClockUpdate(void);
 }
 #endif
 
-#endif /*__SYSTEM_STM32F3XX_H */
+#endif /*__SYSTEM_STM32F10X_H */
 
 /**
   * @}

@@ -9,7 +9,7 @@
 #include <unistd.h>
 #include <stdio.h>
 
-__attribute__((constructor)) void stdio_init(void)
+__attribute__((constructor(1000))) void stdio_init(void)
 {
 	int tty0 = open("/dev/tty0", O_RDONLY);
 	dup2(tty0, STDIN_FILENO);

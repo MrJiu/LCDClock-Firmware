@@ -15,16 +15,17 @@
 #include <string.h>
 #include <sys/poll.h>
 #include <sys/ioctl.h>
+#include <dreamos-rt/gpio.h>
 
 #include "board.h"
 #include "pwm.h"
 #include "lcd.h"
+#include "i2c.h"
 
 extern uint32_t __mem_begin, __mem_size;
 extern uint32_t __ccmram_size, __ccm_size;
 
 int DISP;
-FILE *disp;
 clock_t last_update;
 
 char lcd_line[2][20];
@@ -34,8 +35,16 @@ char lcd_line[2][20];
 int main(void)
 {
 	DISP = open("/dev/lcd", O_RDWR);
-	disp = fdopen(DISP, "rw+");
-	setvbuf(disp, NULL, _IONBF, 0);
+	ioctl(DISP, IOCTL_LCD_SET_CURSOR, false);
+	ioctl(DISP, IOCTL_LCD_SET_CHARACTER, &degree);
+	ioctl(DISP, IOCTL_LCD_SET_CHARACTER, &charged);
+	ioctl(DISP, IOCTL_LCD_SET_CHARACTER, &battery_empty);
+	ioctl(DISP, IOCTL_LCD_SET_CHARACTER, &battery_half_empty);
+	ioctl(DISP, IOCTL_LCD_SET_CHARACTER, &battery_half_full);
+	ioctl(DISP, IOCTL_LCD_SET_CHARACTER, &battery_full);
+	ioctl(DISP, IOCTL_LCD_CLEAR);
+	ioctl(DISP, IOCTL_LCD_HOME);
+	i2c_open();
 
 	fprintf(stderr,
 			"\r\n\033[3J\033[H\033[2J"
@@ -46,16 +55,6 @@ int main(void)
 	fprintf(stderr, "%lu bytes stack memory allocated. Total %lu bytes.\r\n", __ccm_size, __ccmram_size);
 	fprintf(stderr, "%lu bytes heap memory allocated. Total %lu bytes.\r\n", (uint32_t)sbrk(0) - __mem_begin, __mem_size);
 	fprintf(stderr, "Ready.\r\n");
-
-	ioctl(DISP, IOCTL_LCD_SET_CURSOR, false);
-	ioctl(DISP, IOCTL_LCD_SET_CHARACTER, &degree);
-	ioctl(DISP, IOCTL_LCD_SET_CHARACTER, &charged);
-	ioctl(DISP, IOCTL_LCD_SET_CHARACTER, &battery_empty);
-	ioctl(DISP, IOCTL_LCD_SET_CHARACTER, &battery_half_empty);
-	ioctl(DISP, IOCTL_LCD_SET_CHARACTER, &battery_half_full);
-	ioctl(DISP, IOCTL_LCD_SET_CHARACTER, &battery_full);
-	ioctl(DISP, IOCTL_LCD_CLEAR);
-	ioctl(DISP, IOCTL_LCD_HOME);
 
 	analogWrite(0, 0x8000);
 	last_update = clock() - CLOCKS_PER_SEC;
@@ -73,8 +72,8 @@ int main(void)
 			struct tm tm = {0};
 			localtime_r(&t, &tm);
 			strftime(lcd_line[0], 17, "%m-%d %H:%M:%S  ", &tm);
-			strftime(lcd_line[1], 17, "%y%W --.C RH --%%", &tm);
-			char *degree = strchr(lcd_line[1], '.');
+			snprintf(lcd_line[1], 17, " --.-#C RH --.-%%");
+			char *degree = strchr(lcd_line[1], '#');
 			*degree = 1;
 
 			lcd_line[0][15] = digitalRead(0x1f) ? 2 : 5;

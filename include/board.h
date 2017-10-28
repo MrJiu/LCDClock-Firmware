@@ -17,6 +17,7 @@ __BEGIN_DECLS
 
 extern const uint8_t board_id[36];
 extern const uint32_t board_hash;
+extern void (*line_interrupt[16])(void);
 
 __END_DECLS
 

@@ -31,7 +31,7 @@ __attribute__((constructor)) void systick_init(void)
 	SysTick_Config(SystemCoreClock / 1000);
 }
 
-__attribute__((section(".ccmcode"))) void SysTick_Handler(void)
+__attribute__((section(".ccmcode"))) void SysTick_IRQHandler(void)
 {
 	millis_counter++;
 }

@@ -313,7 +313,7 @@ __attribute__((section(".ccm"))) static usart_t tty0 =
 		RCC_APB2ENR_USART1EN
 };
 __attribute__((section(".devices"))) const usart_t *TTY0 = &tty0;
-__attribute__((section(".ccmcode"))) void USART1_Handler(void) { usart_interrupt(&tty0); }
+__attribute__((section(".ccmcode"))) void USART1_IRQHandler(void) { usart_interrupt(&tty0); }
 
 __attribute__((section(".ccm"))) static usart_t tty1 =
 {
@@ -327,7 +327,7 @@ __attribute__((section(".ccm"))) static usart_t tty1 =
 		RCC_APB1ENR_USART2EN
 };
 __attribute__((section(".devices"))) const usart_t *TTY1 = &tty1;
-__attribute__((section(".ccmcode"))) void USART2_Handler(void) { usart_interrupt(&tty1); }
+__attribute__((section(".ccmcode"))) void USART2_IRQHandler(void) { usart_interrupt(&tty1); }
 
 __attribute__((section(".ccm"))) static usart_t tty2 =
 {
@@ -341,7 +341,7 @@ __attribute__((section(".ccm"))) static usart_t tty2 =
 		RCC_APB1ENR_USART3EN
 };
 __attribute__((section(".devices"))) const usart_t *TTY2 = &tty2;
-__attribute__((section(".ccmcode"))) void USART3_Handler(void) { usart_interrupt(&tty2); }
+__attribute__((section(".ccmcode"))) void USART3_IRQHandler(void) { usart_interrupt(&tty2); }
 
 /*
 __attribute__((section(".ccm"))) static usart_t tty3 =
@@ -356,7 +356,7 @@ __attribute__((section(".ccm"))) static usart_t tty3 =
 		RCC_APB1ENR_UART4EN
 };
 __attribute__((section(".devices"))) const usart_t *TTY3 = &tty3;
-__attribute__((section(".ccmcode"))) void UART4_Handler(void) { usart_interrupt(&tty3); }
+__attribute__((section(".ccmcode"))) void UART4_IRQHandler(void) { usart_interrupt(&tty3); }
 
 __attribute__((section(".ccm"))) static usart_t tty4 =
 {
@@ -370,5 +370,5 @@ __attribute__((section(".ccm"))) static usart_t tty4 =
 		RCC_APB1ENR_UART5EN
 };
 __attribute__((section(".devices"))) const usart_t *TTY4 = &tty4;
-__attribute__((section(".ccmcode"))) void UART5_Handler(void) { usart_interrupt(&tty4); }
+__attribute__((section(".ccmcode"))) void UART5_IRQHandler(void) { usart_interrupt(&tty4); }
 */
