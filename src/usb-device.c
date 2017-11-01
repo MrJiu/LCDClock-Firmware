@@ -5,8 +5,8 @@
  *      Author: technix
  */
 
-#include <stm32f3xx.h>
-#include <stm32f303xc_it.h>
+#include <stm32f1xx.h>
+#include <stm32f1xx_it.h>
 #include <stdalign.h>
 #include <stddef.h>
 #include <stdbool.h>
@@ -160,31 +160,31 @@ clock_t last_poll = 0;
 __attribute__((constructor(2000))) void usb_init(void)
 {
 	RCC->APB1ENR |= RCC_APB1ENR_USBEN;
-	RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
 
 	usbd_init(&usb_device, &usbd_hw, USB_EP0_SIZE, usb_buffer, sizeof(usb_buffer));
 	usbd_reg_descr(&usb_device, usb_get_descriptor);
 	usbd_reg_control(&usb_device, usb_control);
 	usbd_reg_config(&usb_device, usb_set_config);
+	__DSB();
 
 	usbd_enable(&usb_device, true);
 	usbd_connect(&usb_device, true);
+	digitalWrite(0x08, true);
+	__DSB();
 
-	SYSCFG->CFGR1 |= SYSCFG_CFGR1_USB_IT_RMP;
-
-	NVIC_EnableIRQ(USB_HP_IRQn);
-	NVIC_EnableIRQ(USB_LP_IRQn);
-	NVIC_EnableIRQ(USBWakeUp_RMP_IRQn);
+	NVIC_EnableIRQ(USB_HP_CAN1_TX_IRQn);
+	NVIC_EnableIRQ(USB_LP_CAN1_RX0_IRQn);
+	NVIC_EnableIRQ(USBWakeUp_IRQn);
 }
 
-__attribute__((section(".ccmcode"))) void USB_IRQHandler(void)
+__attribute__((section(".datacode"))) void USB_IRQHandler(void)
 {
 	usbd_poll(&usb_device);
 }
 
-__attribute__((alias("USB_IRQHandler"))) void USB_HP_IRQHandler(void);
-__attribute__((alias("USB_IRQHandler"))) void USB_LP_IRQHandler(void);
-__attribute__((alias("USB_IRQHandler"))) void USBWakeUp_RMP_IRQHandler(void);
+__attribute__((alias("USB_IRQHandler"))) void USB_HP_CAN1_TX_IRQHandler(void);
+__attribute__((alias("USB_IRQHandler"))) void USB_LP_CAN1_RX0_IRQHandler(void);
+__attribute__((alias("USB_IRQHandler"))) void USBWakeUp_IRQHandler(void);
 
 static usbd_respond usb_get_descriptor(usbd_ctlreq *req, void **address, uint16_t *length)
 {

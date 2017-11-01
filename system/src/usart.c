@@ -15,8 +15,8 @@
 #include <sys/poll.h>
 #include <dreamos-rt/device.h>
 #include <dreamos-rt/time.h>
-#include <stm32f303xc_it.h>
-#include <stm32f3xx.h>
+#include <stm32f1xx_it.h>
+#include <stm32f1xx.h>
 
 #include <errno.h>
 #undef errno
@@ -32,6 +32,7 @@ struct usart_s
 	IRQn_Type IRQn;
 	volatile uint32_t *const RCC_APBEN;
 	const uint32_t RCC_APBEN_Msk;
+	uint8_t RCC_CKDIV;
 
 	// Dynamic data
 	int open_mode;
@@ -40,24 +41,16 @@ struct usart_s
 	ring_buffer_t write_buffer;
 };
 
-__attribute__((constructor(1000))) void usart_init(void)
+__attribute__((section(".datacode"))) static void usart_interrupt(usart_t *usart)
 {
-	// Move a USARTs to SYSCLK clock.
-	SET_FIELD(RCC->CFGR3, RCC_CFGR3_USART1SW, RCC_CFGR3_USART1SW_SYSCLK);
-	SET_FIELD(RCC->CFGR3, RCC_CFGR3_USART2SW, RCC_CFGR3_USART2SW_SYSCLK);
-	SET_FIELD(RCC->CFGR3, RCC_CFGR3_USART3SW, RCC_CFGR3_USART3SW_SYSCLK);
-}
-
-__attribute__((section(".ccmcode"))) static void usart_interrupt(usart_t *usart)
-{
-	if ((usart->USART->CR1 & USART_CR1_RXNEIE) && (usart->USART->ISR & USART_ISR_RXNE))
+	if ((usart->USART->CR1 & USART_CR1_RXNEIE) && (usart->USART->SR & USART_SR_RXNE))
 	{
 		// We have an incoming byte.
 
-		ring_buffer_putchar(usart->read_buffer, usart->USART->RDR);
+		ring_buffer_putchar(usart->read_buffer, usart->USART->DR);
 	}
 
-	if ((usart->USART->CR1 & USART_CR1_TXEIE) && (usart->USART->ISR & USART_ISR_TXE))
+	if ((usart->USART->CR1 & USART_CR1_TXEIE) && (usart->USART->SR & USART_SR_TXE))
 	{
 		// We have space for an outgoing byte.
 		int ch = ring_buffer_getchar(usart->write_buffer);
@@ -68,7 +61,7 @@ __attribute__((section(".ccmcode"))) static void usart_interrupt(usart_t *usart)
 		}
 		else
 		{
-			usart->USART->TDR = ch;
+			usart->USART->DR = ch;
 		}
 	}
 }
@@ -76,7 +69,7 @@ __attribute__((section(".ccmcode"))) static void usart_interrupt(usart_t *usart)
 static inline void usart_wait_for_write(usart_t *usart)
 {
 	while (ring_buffer_getlength(usart->write_buffer));
-	while (!(usart->USART->ISR & USART_ISR_TC));
+	while (!(usart->USART->SR & USART_SR_TC));
 }
 
 static int usart_open(device_t *device, int mode, ...)
@@ -103,9 +96,9 @@ static int usart_open(device_t *device, int mode, ...)
 
 	(*usart->RCC_APBEN) |= usart->RCC_APBEN_Msk;
 
-	SET_FIELD(usart->USART->CR1, USART_CR1_M0, 0);					// 8-N-1
+	SET_FIELD(usart->USART->CR1, USART_CR1_M, 0);					// 8-N-1
 	SET_FIELD(usart->USART->CR2, USART_CR2_STOP, 0);
-	usart->USART->BRR = SystemCoreClock / USART_DEFAULT_BAUDRATE;	// 115200 baud
+	usart->USART->BRR = SystemCoreClock / usart->RCC_CKDIV / USART_DEFAULT_BAUDRATE;	// 115200 baud
 
 	// Enable interrupts
 	NVIC_EnableIRQ(usart->IRQn);
@@ -113,8 +106,6 @@ static int usart_open(device_t *device, int mode, ...)
 	usart->USART->CR1 |= USART_CR1_UE;
 	__DSB();
 	usart->USART->CR1 |= USART_CR1_TE | USART_CR1_RE;
-	__DSB();
-	usart->USART->RQR |= USART_RQR_TXFRQ | USART_RQR_RXFRQ;
 	__DSB();
 	usart->USART->CR1 |= USART_CR1_RXNEIE;
 	__DSB();
@@ -129,7 +120,6 @@ static int usart_close(device_t *device)
 	usart_t *usart = (usart_t *)device;
 
 	// Gracefully shut down USART
-	while (usart->USART->ISR & USART_ISR_BUSY);
 	usart->USART->CR1 &= ~USART_CR1_RE;
 	usart_wait_for_write(usart);
 	usart->USART->CR1 &= ~USART_CR1_TE;
@@ -162,9 +152,9 @@ static inline int usart_getchar(usart_t *usart)
 
 static inline int usart_putchar(usart_t *usart, char ch)
 {
-	if (usart->USART->ISR & USART_ISR_TXE)
+	if (usart->USART->SR & USART_SR_TXE)
 	{
-		usart->USART->TDR = ch;
+		usart->USART->DR = ch;
 	}
 	else
 	{
@@ -235,7 +225,6 @@ static int usart_ioctl(device_t *device, unsigned long func, ...)
 		return SystemCoreClock / usart->USART->BRR;
 
 	case IOCTL_USART_SET_BAUDRATE:
-		while (usart->USART->ISR & USART_ISR_BUSY);
 		usart->USART->CR1 &= ~USART_CR1_RE;
 		usart_wait_for_write(usart);
 		usart->USART->CR1 &= ~USART_CR1_TE;
@@ -301,7 +290,7 @@ static const driver_t usart_driver =
 		.isatty = usart_isatty
 };
 
-__attribute__((section(".ccm"))) static usart_t tty0 =
+static usart_t tty0 =
 {
 		{
 				&usart_driver,
@@ -310,12 +299,13 @@ __attribute__((section(".ccm"))) static usart_t tty0 =
 		USART1,
 		USART1_IRQn,
 		&(RCC->APB2ENR),
-		RCC_APB2ENR_USART1EN
+		RCC_APB2ENR_USART1EN,
+		1
 };
 __attribute__((section(".devices"))) const usart_t *TTY0 = &tty0;
-__attribute__((section(".ccmcode"))) void USART1_IRQHandler(void) { usart_interrupt(&tty0); }
+__attribute__((section(".datacode"))) void USART1_IRQHandler(void) { usart_interrupt(&tty0); }
 
-__attribute__((section(".ccm"))) static usart_t tty1 =
+static usart_t tty1 =
 {
 		{
 				&usart_driver,
@@ -324,12 +314,13 @@ __attribute__((section(".ccm"))) static usart_t tty1 =
 		USART2,
 		USART2_IRQn,
 		&(RCC->APB1ENR),
-		RCC_APB1ENR_USART2EN
+		RCC_APB1ENR_USART2EN,
+		2
 };
 __attribute__((section(".devices"))) const usart_t *TTY1 = &tty1;
-__attribute__((section(".ccmcode"))) void USART2_IRQHandler(void) { usart_interrupt(&tty1); }
+__attribute__((section(".datacode"))) void USART2_IRQHandler(void) { usart_interrupt(&tty1); }
 
-__attribute__((section(".ccm"))) static usart_t tty2 =
+static usart_t tty2 =
 {
 		{
 				&usart_driver,
@@ -338,13 +329,14 @@ __attribute__((section(".ccm"))) static usart_t tty2 =
 		USART3,
 		USART3_IRQn,
 		&(RCC->APB1ENR),
-		RCC_APB1ENR_USART3EN
+		RCC_APB1ENR_USART3EN,
+		2
 };
 __attribute__((section(".devices"))) const usart_t *TTY2 = &tty2;
-__attribute__((section(".ccmcode"))) void USART3_IRQHandler(void) { usart_interrupt(&tty2); }
+__attribute__((section(".datacode"))) void USART3_IRQHandler(void) { usart_interrupt(&tty2); }
 
 /*
-__attribute__((section(".ccm"))) static usart_t tty3 =
+static usart_t tty3 =
 {
 		{
 				&usart_driver,
@@ -353,12 +345,13 @@ __attribute__((section(".ccm"))) static usart_t tty3 =
 		UART4,
 		UART4_IRQn,
 		&(RCC->APB1ENR),
-		RCC_APB1ENR_UART4EN
+		RCC_APB1ENR_UART4EN,
+		2
 };
 __attribute__((section(".devices"))) const usart_t *TTY3 = &tty3;
-__attribute__((section(".ccmcode"))) void UART4_IRQHandler(void) { usart_interrupt(&tty3); }
+__attribute__((section(".datacode"))) void UART4_IRQHandler(void) { usart_interrupt(&tty3); }
 
-__attribute__((section(".ccm"))) static usart_t tty4 =
+static usart_t tty4 =
 {
 		{
 				&usart_driver,
@@ -367,8 +360,9 @@ __attribute__((section(".ccm"))) static usart_t tty4 =
 		UART5,
 		UART5_IRQn,
 		&(RCC->APB1ENR),
-		RCC_APB1ENR_UART5EN
+		RCC_APB1ENR_UART5EN,
+		2
 };
 __attribute__((section(".devices"))) const usart_t *TTY4 = &tty4;
-__attribute__((section(".ccmcode"))) void UART5_IRQHandler(void) { usart_interrupt(&tty4); }
+__attribute__((section(".datacode"))) void UART5_IRQHandler(void) { usart_interrupt(&tty4); }
 */

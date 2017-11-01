@@ -11,7 +11,7 @@
   *          This file contains:
   *           - Data structures and the address mapping for all peripherals
   *           - Peripheral's registers declarations and bits definition
-  *           - Macros to access peripheral’s registers hardware
+  *           - Macros to access peripheralï¿½s registers hardware
   *  
   ******************************************************************************
   * @attention
@@ -10584,6 +10584,8 @@ typedef struct
 /*  product lines within the same STM32F1 Family                              */
 /******************************************************************************/
 
+#if 0
+
 /* Aliases for __IRQn */
 #define ADC1_IRQn               ADC1_2_IRQn
 #define TIM9_IRQn               TIM1_BRK_IRQn
@@ -10621,6 +10623,7 @@ typedef struct
 #define CAN1_RX0_IRQHandler           USB_LP_CAN1_RX0_IRQHandler
 #define USB_LP_IRQHandler             USB_LP_CAN1_RX0_IRQHandler
 
+#endif
 
 /**
   * @}

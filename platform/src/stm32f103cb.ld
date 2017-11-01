@@ -17,8 +17,8 @@
  
  MEMORY
 {
-	IROM (r x) : ORIGIN = 0x08000000, LENGTH = 256k
-	IRAM (rw ) : ORIGIN = 0x20000000, LENGTH = 40k
+	IROM (r x) : ORIGIN = 0x08000000, LENGTH = 128k
+	IRAM (rw ) : ORIGIN = 0x20000000, LENGTH = 20k
 }
 
 /* On this runtime environment, the function Reset_Handler is our entry point,
@@ -41,7 +41,7 @@ SECTIONS
 		KEEP(*(.vector))
 		ASSERT(. != __vector_start, "The interrupt vector is missing.");
 		. = ALIGN(4);
-	} > CCM AT > IROM
+	} > IRAM AT > IROM
 	
 	/* Now comes the bulk of the application code in Flash. */
 	.text :
@@ -68,8 +68,6 @@ SECTIONS
 		
 		PROVIDE(__mem_begin = .); LONG(ORIGIN(IRAM));
 		PROVIDE(__mem_size = .); LONG(LENGTH(IRAM));
-		PROVIDE(__bss_end = .); LONG(ADDR(.bss) + SIZEOF(.bss));
-		PROVIDE(__mem_end = .); LONG(ORIGIN(IRAM) + LENGTH(IRAM));
 	} > IROM
 	
 	.copytable :

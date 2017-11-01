@@ -16,26 +16,30 @@
 #undef errno
 extern int errno;
 
-extern void *__bss_end;
-extern void *__mem_end;
+static void *mem_end = NULL;
+extern uint8_t __bss_end__;
 
-static void *_brk = NULL;
+static inline void *getsp(void)
+{
+	uint32_t ptr;
+	asm volatile ("mov %0, sp" : "=r" (ptr) );
+	return (void *)ptr;
+}
 
 void *_sbrk(ptrdiff_t incr)
 {
-	if (!_brk)
-	{
-		_brk = __bss_end;
-	}
+	if (!mem_end)
+		mem_end = &__bss_end__;
 
-	void *oldbreak = _brk;
-	void *newbreak = _brk + incr;
-	if (newbreak > __mem_end)
+	void *oldbrk = mem_end;
+	void *newbrk = oldbrk + incr;
+
+	if (newbrk >= getsp())
 	{
 		errno = ENOMEM;
 		return NULL;
 	}
 
-	_brk = newbreak;
-	return oldbreak;
+	mem_end = newbrk;
+	return oldbrk;
 }

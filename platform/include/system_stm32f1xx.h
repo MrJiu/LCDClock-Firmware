@@ -86,6 +86,8 @@ extern const uint8_t  APBPrescTable[8U];   /*!< APB prescalers table values */
   * @{
   */
 
+#define SET_FIELD(field, mask, value) (field) = ((field) & ~(mask)) | ((value) & (mask))
+
 /**
   * @}
   */

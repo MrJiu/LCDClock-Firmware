@@ -16,8 +16,8 @@
 #include <dreamos-rt/device.h>
 #include <dreamos-rt/time.h>
 #include <dreamos-rt/gpio.h>
-#include <stm32f303xc_it.h>
-#include <stm32f3xx.h>
+#include <stm32f1xx_it.h>
+#include <stm32f1xx.h>
 #include <unistd.h>
 
 #include <errno.h>
@@ -46,7 +46,7 @@ static void lcd_write_value(lcd_t *lcd, uint8_t addr, uint8_t value)
 {
 	digitalWrite(0x10, addr ? true : false);
 	digitalWrite(0x12, false);
-	SET_FIELD(GPIOA->MODER, 0xffff, 0x5555);
+	GPIOA->CRL = 0x33333333;
 	SET_FIELD(GPIOA->ODR, 0xff, value);
 	usleep(1);
 	digitalWrite(0x1d, true);
@@ -59,7 +59,7 @@ static uint8_t lcd_read_value(lcd_t *lcd, uint8_t addr)
 {
 	digitalWrite(0x10, addr ? true : false);
 	digitalWrite(0x12, true);
-	SET_FIELD(GPIOA->MODER, 0xffff, 0x0000);
+	GPIOA->CRL = 0x44444444;
 	usleep(1);
 	digitalWrite(0x1d, true);
 	usleep(1);
@@ -67,7 +67,7 @@ static uint8_t lcd_read_value(lcd_t *lcd, uint8_t addr)
 	usleep(1);
 	digitalWrite(0x1d, false);
 	usleep(40);
-	SET_FIELD(GPIOA->MODER, 0xffff, 0x5555);
+	GPIOA->CRL = 0x33333333;
 	return val;
 }
 
@@ -299,7 +299,7 @@ static const driver_t lcd_driver =
 		.isatty = lcd_isatty
 };
 
-__attribute__((section(".ccm"))) static lcd_t lcd =
+static lcd_t lcd =
 {
 		{
 				.name = "lcd",

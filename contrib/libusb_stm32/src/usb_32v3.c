@@ -16,7 +16,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "stm32f3xx.h"
+#include "stm32f1xx.h"
 #include "usb.h"
 #include <dreamos-rt/gpio.h>
 

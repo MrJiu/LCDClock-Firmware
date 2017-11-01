@@ -59,7 +59,7 @@ all: LCDClock.elf secondary-outputs
 LCDClock.elf: $(OBJS) $(USER_OBJS)
 	@echo 'Building target: $@'
 	@echo 'Invoking: GNU ARM Cross C++ Linker'
-	arm-none-eabi-g++ -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -Og -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -fsingle-precision-constant  -g3 -T "/Users/technix/Developer/Eclipse/default/LCDClock/platform/src/stm32f303cc.ld" -T "/Users/technix/Developer/Eclipse/default/LCDClock/platform/src/cortex-m.ld" -Xlinker --gc-sections -L"/Users/technix/Developer/Eclipse/default/LCDClock/cmsis/lib" -Wl,-Map,"LCDClock.map" --specs=nano.specs -o "LCDClock.elf" $(OBJS) $(USER_OBJS) $(LIBS)
+	arm-none-eabi-g++ -mcpu=cortex-m3 -mthumb -Og -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -fsingle-precision-constant  -g3 -T "/Users/technix/Developer/Eclipse/default/LCDClock/platform/src/stm32f103cb.ld" -Xlinker --gc-sections -L"/Users/technix/Developer/Eclipse/default/LCDClock/cmsis/lib" -Wl,-Map,"LCDClock.map" --specs=nano.specs -o "LCDClock.elf" $(OBJS) $(USER_OBJS) $(LIBS)
 	@echo 'Finished building target: $@'
 	@echo ' '
 

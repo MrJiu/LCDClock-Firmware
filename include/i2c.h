@@ -18,6 +18,7 @@
 __BEGIN_DECLS
 
 int i2c_open(void);
+void i2c_probe(void);
 int i2c_transfer(uint8_t addr, const void *wbuf, size_t wlen, void *rbuf, size_t rlen);
 int i2c_close(void);
 

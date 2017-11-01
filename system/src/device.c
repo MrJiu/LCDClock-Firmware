@@ -318,7 +318,7 @@ int dup2(int fd, int new_fd)
 	}
 
 	struct file_desc *new_file = &(files[new_fd]);
-	if (file->magic == FILE_MAGIC)
+	if (new_file->magic == FILE_MAGIC)
 	{
 		close(new_fd);
 	}

@@ -5,8 +5,8 @@
  *      Author: technix
  */
 
-#include <stm32f3xx.h>
-#include <stm32f303xc_it.h>
+#include <stm32f1xx.h>
+#include <stm32f1xx_it.h>
 
 #include <dreamos-rt/time.h>
 
@@ -23,20 +23,20 @@ extern int errno;
 /*
  * SysTick-based application run time clock.
  */
-
-__attribute__((section(".ccm"))) uint32_t millis_counter = 0;
+uint32_t millis_counter = 0;
 
 __attribute__((constructor)) void systick_init(void)
 {
 	SysTick_Config(SystemCoreClock / 1000);
+	__DSB();
 }
 
-__attribute__((section(".ccmcode"))) void SysTick_IRQHandler(void)
+__attribute__((section(".datacode"))) void SysTick_IRQHandler(void)
 {
 	millis_counter++;
 }
 
-__attribute__((section(".ccmcode"), weak)) void yield(void) {}
+__attribute__((section(".datacode"), weak)) void yield(void) {}
 
 uint32_t millis(void)
 {
@@ -93,35 +93,21 @@ int usleep(useconds_t useconds)
  * Real time clock
  */
 
+#ifndef LSE_VALUE
+#define LSE_VALUE 32768
+#endif
+
+#define BKP_TZ  BKP->DR1
+#define BKP_DST BKP->DR2
+
 char *strptime(const char *restrict buf, const char *restrict format, struct tm *restrict timeptr);
 void yield(void);
-
-static inline void rtc_enable(void)
-{
-	__disable_irq();
-	RTC->WPR = 0xca;
-	__DSB();
-	RTC->WPR = 0x53;
-	__DSB();
-	__enable_irq();
-}
-
-static inline void rtc_disable(void)
-{
-	__DSB();
-	RTC->WPR = 0xff;
-	__DSB();
-}
 
 __attribute__((constructor)) void rtc_init(void)
 {
 	// If we don't have a clock ready, set it to the compile time of this file.
-	if (!(RTC->ISR & RTC_ISR_INITS))
+	if (RTC->CRL & RTC_CRL_CNF)
 	{
-		rtc_enable();
-		RTC->CR |= RTC_CR_COE;
-		rtc_disable();
-
 		struct tm tm = {0};
 		struct timeval timeval = {0};
 		strptime(__DATE__ " " __TIME__, "%b %d %Y %H:%M:%S", &tm);
@@ -143,35 +129,9 @@ clock_t _times(struct tms *tm)
 	return 0;
 }
 
-#define BKP_CENTURY	BKP0R
-#define BKP_TZ		BKP1R
-#define BKP_DST		BKP2R
-
-static inline int bcd2int(uint8_t bcd)
-{
-	uint8_t high_nibble = (bcd >> 4) & 0xf;
-	uint8_t low_nibble = bcd & 0xf;
-
-	if (high_nibble > 9 || low_nibble > 9)
-		return -EDOM;
-
-	return high_nibble * 10 + low_nibble;
-}
-
-static inline int int2bcd(uint8_t val)
-{
-	if (val > 99)
-		return -EDOM;
-
-	uint8_t high_nibble = val / 10;
-	uint8_t low_nibble = val % 10;
-
-	return high_nibble << 4 | low_nibble;
-}
-
 int _gettimeofday(struct timeval *tm, void *tz)
 {
-	if (!(RTC->ISR & RTC_ISR_INITS))
+	if (RTC->CRL & RTC_CRL_CNF)
 	{
 		errno = ENOTSUP;
 		return -1;
@@ -179,34 +139,15 @@ int _gettimeofday(struct timeval *tm, void *tz)
 
 	if (tm)
 	{
-		while (!(RTC->ISR & RTC_ISR_RSF))
-			yield();
-
-		uint32_t SSR = RTC->SSR;
-		uint32_t TR = RTC->TR;
-		uint32_t DR = RTC->DR;
-		uint32_t PREDIV = RTC->PRER & RTC_PRER_PREDIV_S;
-
-		struct tm t =
-		{
-				.tm_sec = bcd2int(TR & 0xff),
-				.tm_min = bcd2int((TR & 0xff00) >> 8),
-				.tm_hour = bcd2int((TR & 0x3f0000) >> 16) + ((TR & RTC_TR_PM) ? 12 : 0),
-				.tm_mday = bcd2int(DR & 0xff),
-				.tm_mon = bcd2int((DR & 0x1f00) >> 8) - 1,
-				.tm_year = bcd2int((DR & 0xff0000) >> 16) + RTC->BKP_CENTURY * 100,
-				.tm_isdst = (RTC->CR & RTC_CR_BCK) ? 1 : 0
-		};
-
-		tm->tv_sec = mktime(&t);
-		tm->tv_usec = (PREDIV - SSR) * 1000000 / (PREDIV + 1);
+		tm->tv_sec = ((uint32_t)RTC->CNTH) << 16 | ((uint32_t)RTC->CNTL);
+		tm->tv_usec = (LSE_VALUE - RTC->DIVL - 1) * 1000000 / (LSE_VALUE);
 	}
 
 	if (tz)
 	{
 		struct timezone *z = tz;
-		z->tz_minuteswest = RTC->BKP_TZ;
-		z->tz_dsttime = RTC->BKP_DST;
+		z->tz_minuteswest = BKP_TZ;
+		z->tz_dsttime = BKP_DST;
 	}
 
 	return 0;
@@ -214,44 +155,27 @@ int _gettimeofday(struct timeval *tm, void *tz)
 
 int settimeofday(const struct timeval *tm, const struct timezone *tz)
 {
-	rtc_enable();
-
 	if (tm)
 	{
-		RTC->ISR |= RTC_ISR_INIT;
-		while (!(RTC->ISR & RTC_ISR_INITF))
+		RTC->CRL |= RTC_CRL_CNF;
+		while (!(RTC->CRL & RTC_CRL_RTOFF))
 			yield();
 
-		RTC->PRER = 32767;
+		RTC->PRLH = 0;
+		RTC->PRLL = LSE_VALUE - 1;
 
-		struct tm t = {0};
-		if (!gmtime_r(&(tm->tv_sec), &t))
-		{
-			rtc_disable();
-			return -1;
-		}
+		RTC->CNTH = tm->tv_sec >> 16;
+		RTC->CNTL = tm->tv_sec & 0xffff;
 
-		SET_FIELD(RTC->CR, RTC_CR_FMT | RTC_CR_BCK, (t.tm_isdst) ? RTC_CR_BCK : 0); // 24-hour format
-		RTC->DR =
-				int2bcd(t.tm_year % 100) << 16 |
-				(t.tm_wday ?: 7) << 13 |
-				int2bcd(t.tm_mon + 1) << 8 |
-				int2bcd(t.tm_mday);
-		RTC->TR =
-				int2bcd(t.tm_hour) << 16 |
-				int2bcd(t.tm_min) << 8 |
-				int2bcd(t.tm_sec);
-		RTC->BKP_CENTURY = t.tm_year / 100;
-
-		RTC->ISR &= ~(RTC_ISR_INIT | RTC_ISR_RSF);
+		RTC->CRL &= ~RTC_CRL_CNF;
+		while (!(RTC->CRL & RTC_CRL_RTOFF))
+			yield();
 	}
 
 	if (tz)
 	{
-		RTC->BKP_TZ = tz->tz_minuteswest;
-		RTC->BKP_DST = tz->tz_dsttime;
+		BKP_TZ = tz->tz_minuteswest;
+		BKP_DST = tz->tz_dsttime;
 	}
-
-	rtc_disable();
 	return 0;
 }
